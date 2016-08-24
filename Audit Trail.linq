@@ -37,17 +37,34 @@ void Main()
 		.ToList();
 		
 	// Get all distinct Root Entity IDs
-	var rootEntity_ID = AuditTrailRootEntityIds
+	IQueryable<RootEntity> rootEntity_ID = AuditTrailRootEntityIds
 		.Where (rei =>  listAuditTrailIDs
 						.Contains(rei.AuditTrailId) )
-		.Select (s => new { s.RootEntityId_RootEntityIdName, s.RootEntityId_Value } )
+		.Select (s =>  new RootEntity(s.RootEntityId_RootEntityIdName, s.RootEntityId_IsPrimaryKey, s.RootEntityId_Value) )
+		//.Select (s =>  new {s.RootEntityId_RootEntityIdName, s.RootEntityId_IsPrimaryKey, s.RootEntityId_Value} )
 		.Distinct();
 						
 	rootEntity_ID.Dump();	
 		
-	auditTrail.Dump();
+//	auditTrail.Dump();
 
 }
+
+    public class RootEntity
+    {
+		
+		// Constructor
+        public RootEntity(string rootEntityIdName, bool isPrimaryKey, Guid rootEntityId)
+		{
+			RootEntityIdName = rootEntityIdName;
+			IsPrimaryKey = isPrimaryKey;
+			RootEntityId = rootEntityId;
+		}
+
+        public bool IsPrimaryKey { get; set; }
+        public string RootEntityIdName { get; set; }
+        public Guid RootEntityId { get; set; }
+    }
 
 // Define other methods and classes here
         private Guid? GetSubjectId(string externalId)
