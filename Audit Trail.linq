@@ -5,6 +5,10 @@
     <Server>(localDB)\MSSQLLocalDB</Server>
     <Database>IXRS_Almac123456</Database>
   </Connection>
+  <Reference Relative="DLLs\Excel.dll">D:\Skitch\Audits\IXRS 3.0 Audit\DLLs\Excel.dll</Reference>
+  <Reference Relative="DLLs\ICSharpCode.SharpZipLib.dll">D:\Skitch\Audits\IXRS 3.0 Audit\DLLs\ICSharpCode.SharpZipLib.dll</Reference>
+  <Reference Relative="DLLs\IXRS.CountryManagement.CountryList.dll">D:\Skitch\Audits\IXRS 3.0 Audit\DLLs\IXRS.CountryManagement.CountryList.dll</Reference>
+  <Namespace>IXRS.CountryManagement</Namespace>
   <IncludePredicateBuilder>true</IncludePredicateBuilder>
 </Query>
 
@@ -48,7 +52,7 @@ void Main()
 	
 	rootEntityConversion.Dump();
 						
-	rootEntity_ID.Dump();	
+	//rootEntity_ID.Dump();	
 		
 //	auditTrail.Dump();
 
@@ -91,27 +95,31 @@ void Main()
 		private List<RootEntityConversion> GetRootEntityConversion(IEnumerable<RootEntity> rootEntity)
 		{
 			var rootEntityConversion = new List<RootEntityConversion>();
+			CountryProvider countryProvider = new CountryProvider();
 		
 			var rootEntityIdGroupingByEntityName = rootEntity.GroupBy(rei => rei.RootEntityIdName);
 			    foreach (var rootEntityIdsForEntityName in rootEntityIdGroupingByEntityName)
 				{
 					var distinctRootEntityIds = rootEntityIdsForEntityName.Select(rei => rei.RootEntityId).Distinct();
-//					rootEntityIdsForEntityName.Key.Dump();
-//					distinctRootEntityIds.Dump();
 					switch (rootEntityIdsForEntityName.Key)
 					{
+                    	case "CountryId":
+                            rootEntityConversion.AddRange(countryProvider.GetAllCountries().Where(c => distinctRootEntityIds.Contains(c.CountryId))
+                                .Select(country => new RootEntityConversion( "CountryId", country.Name, country.CountryId )));
+                        break;					
 						case "KitId":
 							rootEntityConversion.AddRange(Fulfillment_NumberedKits.Where(nk => distinctRootEntityIds.Contains(nk.KitId))
-                                .Select(kit => new RootEntityConversion( "KitId", kit.Spec_Number.ToString(),kit.KitId ) ));
+                                .Select(kit => new RootEntityConversion( "KitId", kit.Spec_Number.ToString(), kit.KitId ) ));
 						break;
 						case "KitTypeId":
 							rootEntityConversion.AddRange(KitTypes.Where(kt => distinctRootEntityIds.Contains(kt.KitTypeId))
                                 .Select(kitType => new RootEntityConversion( "KitTypeId", kitType.Code, kitType.KitTypeId ) ));
 						break;
-//						case "LotId":  // need inner join
-//							rootEntityConversion.AddRange(Fulfillment_Lots.Where(lot => distinctRootEntityIds.Contains(lot.LotId))
-//
-//						break;	
+						case "LotId":  // need inner join
+                            rootEntityConversion.AddRange(Fulfillment_Lots.Where(lot => distinctRootEntityIds.Contains(lot.LotId))
+                                .Join(LotNumbers, l => l.OrderingLotNumberId, ln => ln.LotNumberId, (lot, lotNumber) => new {lot, lotNumber})
+                                .Select(x => new RootEntityConversion( "LotId", x.lotNumber.Number.ToString(), x.lotNumber.LotNumberId )));
+                        break;
 						case "SiteId":
 							rootEntityConversion.AddRange(SiteInformation.Where(si => distinctRootEntityIds.Contains(si.SiteId))
                                 .Select(site => new RootEntityConversion( "SiteId", site.SiteCode, site.SiteId ) ));
@@ -134,9 +142,6 @@ void Main()
 						break;						
 					}
 				}
-			
-//			rootEntityIdGroupingByEntityName.Dump();
-			
 			return rootEntityConversion;
 		}
 		
