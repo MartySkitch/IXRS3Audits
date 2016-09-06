@@ -1,18 +1,21 @@
 <Query Kind="Statements">
   <Connection>
-    <ID>bfed86d1-0885-452b-8d52-e748a5c23776</ID>
+    <ID>623e535d-fd44-41dc-a5c5-888da12d3d4e</ID>
     <Persist>true</Persist>
-    <Server>(localDB)\MSSQLLocalDB</Server>
-    <Database>IXRS_Almac123456</Database>
+    <Server>SO-DB-AG1.live.ext,3344</Server>
+    <Database>IXRS_Global</Database>
+    <IsProduction>true</IsProduction>
   </Connection>
 </Query>
 
 /* 	Programmer: MFS
 	Date: 29-Jul-2016
 	Purpose: Give a user's name return list of active studies
+	
+	ToDo: Add preicate to accept either first or last name or email
 
 */
-var userName = "support";
+var userName = "Rodriguez";
 
 var users = 
 UserContactInformation
@@ -25,11 +28,12 @@ UserContactInformation
 		userstudy => userstudy.study.StudyCode, 
 		studyInfo => studyInfo.StudyCode,
 		(userstudy, studyInfo) => new 
-		{ 	UserName = userstudy.user.FirstName + " " + userstudy.user.LastName
+		{ 	UserFirstName = userstudy.user.FirstName
+			,UserLastName = userstudy.user.LastName
 			,StudyCode = userstudy.study.StudyCode
 			,ProjectCode = studyInfo.ProjectCode
 			,IsActive = userstudy.study.IsActive} )
-     .Where(m => m.UserName.Contains(userName) )
+     .Where(m => m.UserLastName.Contains(userName)  )
 	 .OrderBy(m => m.StudyCode);
 
 users.Dump();
