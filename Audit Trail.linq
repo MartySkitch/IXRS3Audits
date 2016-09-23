@@ -133,8 +133,9 @@ void Main()
                                 .Select(treatmentArm => new RootEntityConversion( "TreatmentArmId", treatmentArm.Description, treatmentArm.Id ) ));
 						break;								
 //						case "UserId":  // need to figure out how to connect to second database
-//							rootEntityConversion.AddRange(Visits.Where(v => distinctRootEntityIds.Contains(v.VisitId))
-//                                .Select(visit => new RootEntityConversion( "VisitId", visit.Name, visit.VisitId ) ));
+//                        var globalDB = new DataContext(@"Data Source=SO-DB-AG1.live.ext,3344;Integrated Security=SSPI;Initial Catalog=IXRS_Global;app=LINQPad [Get Studies]");
+//                             rootEntityConversion.AddRange(globalDB.GetTable<UserAccount>().Where(ua => distinctRootEntityIds.Contains(ua.UserId))
+//                                 .Select(user => new RootEntityIdConversion { Id = user.UserId, Value = user.UserName, RootEntityIdName = RootEntityIdNames.User }));
 //						break;								
 						case "VisitId":
 							rootEntityConversion.AddRange(Visits.Where(v => distinctRootEntityIds.Contains(v.VisitId))
