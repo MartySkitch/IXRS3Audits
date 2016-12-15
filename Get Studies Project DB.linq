@@ -8,11 +8,8 @@
   </Connection>
 </Query>
 
-
-
-
 var studies = T_Projects
-	.Where(c=> c.StudyCode.StartsWith("5000") 
+	.Where(c=> c.SolomonCode.Contains("ROCHEO3001301")
 				//&& c.Active == true
 				&& c.EndDate > DateTime.Now
 				&& c.OnlineDate < DateTime.Now

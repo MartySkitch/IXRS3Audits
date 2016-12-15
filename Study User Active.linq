@@ -5,6 +5,7 @@
     <Server>SO-DB-AG1.live.ext,3344</Server>
     <Database>IXRS_Global</Database>
     <IsProduction>true</IsProduction>
+    <LinkedDb>IXRS_ROGNEO3008101</LinkedDb>
   </Connection>
 </Query>
 
@@ -15,7 +16,7 @@
 	ToDo: Add preicate to accept either first or last name or email
 
 */
-var userName = "Rodriguez";
+var userName = "Kukko";
 
 var users = 
 UserContactInformation
@@ -30,10 +31,14 @@ UserContactInformation
 		(userstudy, studyInfo) => new 
 		{ 	UserFirstName = userstudy.user.FirstName
 			,UserLastName = userstudy.user.LastName
+			,Email = userstudy.user.Email
 			,StudyCode = userstudy.study.StudyCode
 			,ProjectCode = studyInfo.ProjectCode
-			,IsActive = userstudy.study.IsActive} )
-     .Where(m => m.UserLastName.Contains(userName)  )
+			,IsActive = userstudy.study.IsActive
+			,UserID = userstudy.user.UserId} )
+     //.Where(m => m.UserLastName.Contains(userName)  
+	 	.Where (m => m.Email.Contains("nuth.nhs") 
+	 )
 	 .OrderBy(m => m.StudyCode);
 
 users.Dump();

@@ -5,10 +5,9 @@
     <Server>SO-DB-AG1.live.ext,3344</Server>
     <Database>IXRS_Global</Database>
     <IsProduction>true</IsProduction>
+    <LinkedDb>IXRS_ROGNEO3008101</LinkedDb>
   </Connection>
 </Query>
-
-
 
 var studies = GlobalStudyInformation
 	.Where(c=> c.StudyCode.StartsWith("5"))
