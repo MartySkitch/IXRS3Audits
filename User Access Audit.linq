@@ -12,7 +12,7 @@
 
 void Main()
 {
-	var studyCD = "500006";
+	var studyCD = "500020";
 	List<AuditTrailResult> auditTrailResults;
 	
 	// Get the Audit Trail
@@ -22,14 +22,15 @@ void Main()
 		.Select (at => new AuditTrail { DateCreatedUtc = at.DateCreatedUtc,
 										EntityModificationsNewValue = at.EntityModifications_NewValues,
 										EntityModificationsOldValue = at.EntityModifications_OldValues,
-										ModUserId = at.TransactionInformation_User_UserId
+										ModUserId = at.TransactionInformation_User_UserId,
+										OperationType = at.EntityModifications_OperationType
 										})
 		.OrderBy (at => at.DateCreatedUtc);
 	
 	auditTrailResults = auditTrail.ToList()
 		.Select (at => ConvertFromAuditTrail(at) ).ToList();
 		
-	auditTrailResults.Dump();		
+	auditTrailResults.Dump();
 }
 	private AuditTrailResult ConvertFromAuditTrail(AuditTrail auditTrail)
 	{
@@ -38,10 +39,25 @@ void Main()
 		var newValue = JObject.Parse(auditTrail.EntityModificationsNewValue);
 		var user = GetUserInfo( new Guid((string)newValue["UserId"]));
 		var mod = GetUserInfo(auditTrail.ModUserId);
+		var opType = "Insert";
+		
+		switch (auditTrail.OperationType)
+		{
+			case 0: 
+				opType = "Insert";
+				break;
+			case 2:
+				opType = "Update";
+				break;
+			default:
+				opType = "N/A";
+				break;
+		}
 
 		var auditTrailResult = new AuditTrailResult
 		{
 			DateCreatedUtc = auditTrail.DateCreatedUtc,
+			OperationType = opType,
 			isActiveOldValue = oldValue == null ? string.Empty : (string)oldValue["IsActive"],
 			isActiveNewValue = (string)newValue["IsActive"],
 			userFirstName = user.FirstName,
@@ -71,13 +87,15 @@ void Main()
         //public AuditTrail();
         public DateTime DateCreatedUtc { get; set; }
         public string EntityModificationsNewValue { get; set; }
-        public string EntityModificationsOldValue { get; set; }		
+        public string EntityModificationsOldValue { get; set; }
+		public int OperationType  { get; set; }
         public Guid? ModUserId { get; set; }
     }
 	
 	public class AuditTrailResult
 	{
 		public DateTime DateCreatedUtc { get; set; }
+		public string OperationType  { get; set; }
 		public string userFirstName { get; set; }
 		public string userLastName { get; set; }
 		public string userEmail { get; set; }

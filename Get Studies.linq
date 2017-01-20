@@ -11,6 +11,6 @@
 
 var studies = GlobalStudyInformation
 	.Where(c=> c.StudyCode.StartsWith("5"))
-	.OrderBy(m => m.StudyCode);
+	.OrderBy(m => m.ProjectCode);
 	
 studies.Dump();
